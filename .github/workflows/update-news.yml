@@ -23,7 +23,7 @@ jobs:
           python-version: '3.11'
 
       - name: Installa le dipendenze
-        run: pip install feedparser
+        run: pip install feedparser requests
 
       - name: Esegui lo scraper
         run: python3 scraper_cfo_report.py

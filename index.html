@@ -104,6 +104,7 @@
       <button onclick="filterCategory('tax')" data-cat="tax" class="cat-btn px-4 py-2 text-xs font-semibold rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition"><i class="fa-solid fa-scale-balanced mr-1.5 text-blue-500"></i>Finanza &amp; Fisco</button>
       <button onclick="filterCategory('fashion')" data-cat="fashion" class="cat-btn px-4 py-2 text-xs font-semibold rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition"><i class="fa-solid fa-shirt mr-1.5 text-purple-500"></i>Fashion Business</button>
       <button onclick="filterCategory('macro')" data-cat="macro" class="cat-btn px-4 py-2 text-xs font-semibold rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition"><i class="fa-solid fa-chart-line mr-1.5 text-emerald-500"></i>Macro &amp; Mercati</button>
+      <button onclick="filterCategory('esg')" data-cat="esg" class="cat-btn px-4 py-2 text-xs font-semibold rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition"><i class="fa-solid fa-leaf mr-1.5 text-teal-500"></i>ESG &amp; Supply Chain</button>
     </div>
     <div class="relative w-full md:w-80">
       <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-xs text-slate-400"></i>
@@ -205,6 +206,7 @@ function getCategoryBadge(cat){
     case 'tax': return '<span class="px-2.5 py-1 text-[10px] font-bold rounded-md bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-300 border border-blue-200 dark:border-blue-700"><i class="fa-solid fa-scale-balanced mr-1"></i>Finanza &amp; Fisco</span>';
     case 'fashion': return '<span class="px-2.5 py-1 text-[10px] font-bold rounded-md bg-purple-100 text-purple-800 dark:bg-purple-900/60 dark:text-purple-300 border border-purple-200 dark:border-purple-700"><i class="fa-solid fa-shirt mr-1"></i>Fashion Business</span>';
     case 'macro': return '<span class="px-2.5 py-1 text-[10px] font-bold rounded-md bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700"><i class="fa-solid fa-chart-line mr-1"></i>Macro &amp; Mercati</span>';
+    case 'esg': return '<span class="px-2.5 py-1 text-[10px] font-bold rounded-md bg-teal-100 text-teal-800 dark:bg-teal-900/60 dark:text-teal-300 border border-teal-200 dark:border-teal-700"><i class="fa-solid fa-leaf mr-1"></i>ESG &amp; Supply Chain</span>';
     default: return '<span class="px-2.5 py-1 text-[10px] font-bold rounded-md bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300"><i class="fa-solid fa-globe mr-1"></i>Generale</span>';
   }
 }
@@ -317,7 +319,34 @@ function exportCSV(){
 }
 
 document.getElementById('printDate') && (document.getElementById('printDate').innerText = new Date().toLocaleString('it-IT'));
-renderArticles();
+
+// Al caricamento della pagina, prova a leggere data.json dalla stessa cartella
+// (funziona una volta pubblicata su Cloudflare Pages: stesso dominio, non è
+// una chiamata "esterna" bloccata dal browser). Se il file non esiste ancora
+// o la pagina è aperta solo come artifact di anteprima, restano i 3 esempi.
+async function autoLoadData(){
+  try{
+    const res = await fetch('data.json', { cache: 'no-store' });
+    if(!res.ok) throw new Error('data.json non trovato (' + res.status + ')');
+    const data = await res.json();
+    if(!Array.isArray(data) || data.length === 0) throw new Error('data.json vuoto');
+    articlesList = data.map(a=>({
+      id: a.id || Math.random().toString(36).slice(2),
+      category: a.category || "fashion",
+      title: a.title || "(senza titolo)",
+      source: a.source || "Fonte",
+      pubDate: a.date || a.pubDate || "",
+      link: a.url || a.link || "#",
+      summary: a.summary || a.preview || "",
+      contentLines: a.contentLines || (a.summary ? [a.summary] : [])
+    }));
+    document.getElementById('lastUpdatedTimestamp').innerText = "Aggiornato automaticamente da data.json — " + new Date().toLocaleString('it-IT');
+  }catch(err){
+    console.warn('Caricamento automatico non riuscito, resto sugli esempi:', err.message);
+  }
+  renderArticles();
+}
+autoLoadData();
 </script>
 </body>
 </html>

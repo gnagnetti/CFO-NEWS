@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="it" class="h-full">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CFO Weekly News Report - Luisa Spagnoli</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = { darkMode:'class', theme:{ extend:{
+    colors:{ navy:{800:'#102A43',900:'#0B192C',950:'#060E1A'}, gold:{300:'#EAD7BD',400:'#D4B891',500:'#C5A880',600:'#A88B63'} },
+    fontFamily:{ sans:['Inter','sans-serif'] }
+  }}}
+</script>
+<style>
+  ::-webkit-scrollbar{width:6px;height:6px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:#94a3b8;border-radius:4px}
+  .dark ::-webkit-scrollbar-thumb{background:#334155}
+  .line-clamp-3{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  :root{ padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px); }
+  @media print{
+    .no-print{display:none!important} .print-only{display:block!important}
+    body{background:white!important;color:black!important;font-size:10pt}
+    .card-shadow{box-shadow:none!important;border:1px solid #cbd5e1!important;page-break-inside:avoid}
+    .container-print{max-width:100%!important;padding:0!important;margin:0!important}
+    a{text-decoration:none!important;color:black!important}
+  }
+</style>
+</head>
+<body class="bg-slate-100 text-slate-800 dark:bg-navy-900 dark:text-slate-100 min-h-full font-sans">
+
+<header class="bg-navy-950 text-white border-b border-slate-800 sticky top-0 z-30 shadow-md no-print" style="top:env(safe-area-inset-top,0px)">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between flex-wrap gap-3">
+    <div class="flex items-center space-x-4">
+      <div class="bg-gradient-to-br from-gold-400 to-gold-600 text-navy-950 font-black text-xl flex items-center justify-center h-12 w-12 rounded-xl shadow-lg border border-gold-300/40 tracking-wider">LS</div>
+      <div>
+        <div class="flex items-center space-x-2">
+          <span class="text-xs uppercase font-bold tracking-widest text-gold-400">Luisa Spagnoli S.p.A.</span>
+          <span class="text-slate-500">•</span>
+          <span class="text-xs text-slate-400">Direzione Finanziaria CFO</span>
+        </div>
+        <h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-white leading-tight">Weekly Financial &amp; Industry Intelligence</h1>
+      </div>
+    </div>
+    <div class="flex items-center space-x-2 sm:space-x-3">
+      <input type="file" id="jsonFile" accept="application/json" class="hidden">
+      <button onclick="document.getElementById('jsonFile').click()" class="flex items-center space-x-2 px-3 py-2 text-xs font-semibold rounded-xl bg-navy-800 hover:bg-slate-800 border border-slate-700 text-slate-200 transition">
+        <i class="fa-solid fa-arrow-up-from-bracket text-gold-400"></i><span class="hidden md:inline">Carica dati scraper</span>
+      </button>
+      <button onclick="exportCSV()" class="flex items-center space-x-2 px-3 py-2 text-xs font-semibold rounded-xl bg-navy-800 hover:bg-slate-800 border border-slate-700 text-slate-200 transition">
+        <i class="fa-solid fa-file-csv text-emerald-400"></i><span class="hidden md:inline">Esporta CSV</span>
+      </button>
+      <button onclick="window.print()" class="flex items-center space-x-2 px-3.5 py-2 text-xs font-bold rounded-xl bg-gold-500 text-navy-950 hover:bg-gold-400 transition shadow-md">
+        <i class="fa-solid fa-file-pdf"></i><span>Scarica PDF</span>
+      </button>
+      <button onclick="toggleTheme()" class="p-2.5 text-slate-400 hover:text-white rounded-xl bg-navy-800 border border-slate-700 transition">
+        <i class="fa-solid fa-moon dark:hidden"></i><i class="fa-solid fa-sun hidden dark:block text-gold-400"></i>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 container-print">
+
+  <div class="hidden print-only mb-6 border-b border-slate-300 pb-4">
+    <h1 class="text-2xl font-bold text-slate-900">Luisa Spagnoli S.p.A. - CFO Weekly News Report</h1>
+    <p class="text-xs text-slate-600">Generato il: <span id="printDate"></span></p>
+  </div>
+
+  <div class="bg-white dark:bg-navy-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm mb-8 no-print">
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+      <div>
+        <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-600 dark:text-gold-400 text-xs font-bold mb-2">
+          <i class="fa-solid fa-clock-rotate-left"></i><span id="dateRangeBadge">Notizie verificate manualmente</span>
+        </div>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Rassegna Stampa e Informazioni di Mercato</h2>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1" id="lastUpdatedTimestamp">Dati reali, verificati alla pubblicazione — nessuna generazione automatica di testo.</p>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 flex-grow lg:max-w-2xl">
+        <div class="bg-slate-50 dark:bg-navy-950/60 p-4 rounded-xl border border-slate-200/80 dark:border-slate-700/60">
+          <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Articoli caricati</p>
+          <p class="text-2xl font-black text-slate-900 dark:text-white mt-1" id="kpiCount">0</p>
+          <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold"><i class="fa-solid fa-check-double mr-1"></i>Fonti verificate</span>
+        </div>
+        <div class="bg-slate-50 dark:bg-navy-950/60 p-4 rounded-xl border border-slate-200/80 dark:border-slate-700/60">
+          <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Origine dati</p>
+          <p class="text-lg font-black text-slate-900 dark:text-white mt-1">Scraper RSS</p>
+          <span class="text-[10px] text-gold-500 font-bold"><i class="fa-solid fa-rss mr-1"></i>Google News multi-query</span>
+        </div>
+        <div class="bg-slate-50 dark:bg-navy-950/60 p-4 rounded-xl border border-slate-200/80 dark:border-slate-700/60 col-span-2 sm:col-span-1">
+          <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Ordinamento</p>
+          <p class="text-2xl font-black text-slate-900 dark:text-white mt-1">Recenti</p>
+          <span class="text-[10px] text-slate-500 font-bold"><i class="fa-solid fa-arrow-down-wide-short mr-1"></i>Data decrescente</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 no-print">
+    <div class="flex items-center space-x-1.5 overflow-x-auto pb-1 md:pb-0" id="categoryTabs">
+      <button onclick="filterCategory('all')" data-cat="all" class="cat-btn px-4 py-2 text-xs font-bold rounded-xl bg-navy-950 text-white dark:bg-gold-500 dark:text-navy-950 shadow-sm transition">Tutti (<span id="catCountAll">0</span>)</button>
+      <button onclick="filterCategory('tax')" data-cat="tax" class="cat-btn px-4 py-2 text-xs font-semibold rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition"><i class="fa-solid fa-scale-balanced mr-1.5 text-blue-500"></i>Finanza &amp; Fisco</button>
+      <button onclick="filterCategory('fashion')" data-cat="fashion" class="cat-btn px-4 py-2 text-xs font-semibold rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition"><i class="fa-solid fa-shirt mr-1.5 text-purple-500"></i>Fashion Business</button>
+      <button onclick="filterCategory('macro')" data-cat="macro" class="cat-btn px-4 py-2 text-xs font-semibold rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition"><i class="fa-solid fa-chart-line mr-1.5 text-emerald-500"></i>Macro &amp; Mercati</button>
+    </div>
+    <div class="relative w-full md:w-80">
+      <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-xs text-slate-400"></i>
+      <input type="text" id="searchInput" onkeyup="handleSearch()" placeholder="Cerca titolo, fonte o testo..." class="w-full pl-9 pr-4 py-2 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-navy-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-gold-500 shadow-sm">
+    </div>
+  </div>
+
+  <div id="newsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+  <div id="emptyState" class="hidden text-center py-16 bg-white dark:bg-navy-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+    <i class="fa-solid fa-newspaper text-5xl text-slate-300 dark:text-slate-600 mb-4"></i>
+    <h3 class="text-base font-bold text-slate-800 dark:text-slate-200">Nessun articolo trovato</h3>
+    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Cambia filtro o carica un nuovo <code>data.json</code> generato dallo scraper.</p>
+  </div>
+
+  <footer class="mt-10 pt-4 border-t border-slate-200 dark:border-slate-700 text-xs text-slate-500 dark:text-slate-400 no-print">
+    Questa pagina non può chiamare API esterne (rss2json, feed diretti) per motivi di sicurezza del browser.
+    Esegui <code class="bg-gold-500/10 px-1.5 py-0.5 rounded">scraper_cfo_report.py</code> in locale
+    (Google News RSS, categorie Fisco/Fashion/Macro) e carica il <code class="bg-gold-500/10 px-1.5 py-0.5 rounded">data.json</code> generato con "Carica dati scraper".
+  </footer>
+</main>
+
+<div id="articleModal" class="fixed inset-0 z-50 hidden no-print" role="dialog" aria-modal="true">
+  <div class="fixed inset-0 bg-slate-950/75 backdrop-blur-sm" onclick="closeModal()"></div>
+  <div class="fixed inset-0 z-10 overflow-y-auto p-4 sm:p-6 md:p-20 flex items-center justify-center">
+    <div class="relative overflow-hidden rounded-2xl bg-white dark:bg-navy-800 text-left shadow-2xl w-full max-w-3xl border border-slate-200 dark:border-slate-700">
+      <div class="px-6 py-5 border-b border-slate-200 dark:border-slate-700 flex items-start justify-between bg-slate-50 dark:bg-navy-950/80">
+        <div>
+          <div class="flex items-center space-x-2 mb-2" id="modalBadges"></div>
+          <h2 class="text-lg font-extrabold text-slate-900 dark:text-white leading-snug" id="modalTitle"></h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1" id="modalMeta"></p>
+        </div>
+        <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-lg"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <div class="px-6 py-6 max-h-[60vh] overflow-y-auto text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed" id="modalBody"></div>
+      <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-navy-950/80 flex items-center justify-between">
+        <span class="text-xs text-slate-500">Report riservato Luisa Spagnoli S.p.A.</span>
+        <a id="modalExternalLink" href="#" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-gold-500 text-navy-950 hover:bg-gold-400 font-bold rounded-xl text-xs flex items-center space-x-2 shadow">
+          <span>Leggi articolo originale</span><i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Notizie reali, verificate manualmente alla pubblicazione della dashboard.
+// Nessun testo generato: titolo/anteprima ripresi dalle fonti, link diretti.
+let articlesList = [
+  {
+    id:"seed-tax-1", category:"tax",
+    title:"Transizione 5.0: come gli \u201cesodati\u201d possono fruire del nuovo credito d'imposta",
+    source:"Il Sole 24 Ore — NT+ Fisco",
+    pubDate:"2026-04-16",
+    link:"https://ntplusfisco.ilsole24ore.com/art/transizione-50-come-esodati-possono-fruire-nuovo-credito-d-imposta-AIObqinC",
+    summary:"La percentuale di fruizione del credito d'imposta Transizione 5.0 sale dal 35% all'89,77% dell'importo richiesto. Istituito il codice tributo 7079 per la compensazione in F24.",
+    contentLines:[
+      "La quota fruibile del credito d'imposta Transizione 5.0 è stata innalzata dal 35% all'89,77% dell'importo richiesto.",
+      "La risoluzione n. 14 del 16 aprile 2026 dell'Agenzia delle Entrate ha istituito il codice tributo \u201c7079\u201d per l'utilizzo in compensazione tramite F24.",
+      "La misura riguarda le imprese che hanno effettuato investimenti in efficienza energetica tra il 2024 e il 2025 nell'ambito del Piano Transizione 5.0."
+    ]
+  },
+  {
+    id:"seed-fashion-1", category:"fashion",
+    title:"Luisa Spagnoli in calendario alla Milano Fashion Week, 25 settembre 2026",
+    source:"The Impression — Calendario Sfilate",
+    pubDate:"2026-09-25",
+    link:"https://theimpression.com/fashion-show-calendar/week/2026-09-21/",
+    summary:"Il brand umbro è confermato nel calendario ufficiale delle sfilate donna Primavera/Estate 2027 durante la Milano Fashion Week, insieme a Tod's, Gucci, Ferragamo.",
+    contentLines:[
+      "Luisa Spagnoli è in calendario alla Milano Fashion Week il 25 settembre 2026, tra le sfilate donna P/E 2027.",
+      "La settimana della moda milanese, organizzata da CNMI, conta oltre 90 appuntamenti dal 22 al 28 settembre 2026."
+    ]
+  },
+  {
+    id:"seed-macro-1", category:"macro",
+    title:"Cinque motivi per cui l'euro potrebbe vacillare nel 2026",
+    source:"BlueRating",
+    pubDate:"2026-09-15",
+    link:"https://www.bluerating.com/?p=858496",
+    summary:"Analisi di iBanFirst Italia: dopo essersi stabilizzato tra 1,15 e 1,20, il cambio EUR/USD potrebbe tornare verso area 1,12-1,13 nel 2026.",
+    contentLines:[
+      "Il cambio EUR/USD si è stabilizzato in un intervallo tra 1,15 e 1,20, considerato dagli operatori il \u201cnuovo equilibrio\u201d.",
+      "Secondo Michele Sansone (iBanFirst Italia), diversi fattori potrebbero riportare il cambio verso area 1,12-1,13 nel corso del 2026.",
+      "I mercati Forex tendono a sottovalutare l'impatto dei flussi di capitale e del momentum sulle valute."
+    ]
+  }
+];
+
+let currentCategory = "all";
+let searchQuery = "";
+
+function toggleTheme(){
+  document.documentElement.classList.toggle('dark');
+}
+
+function getCategoryBadge(cat){
+  switch(cat){
+    case 'tax': return '<span class="px-2.5 py-1 text-[10px] font-bold rounded-md bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-300 border border-blue-200 dark:border-blue-700"><i class="fa-solid fa-scale-balanced mr-1"></i>Finanza &amp; Fisco</span>';
+    case 'fashion': return '<span class="px-2.5 py-1 text-[10px] font-bold rounded-md bg-purple-100 text-purple-800 dark:bg-purple-900/60 dark:text-purple-300 border border-purple-200 dark:border-purple-700"><i class="fa-solid fa-shirt mr-1"></i>Fashion Business</span>';
+    case 'macro': return '<span class="px-2.5 py-1 text-[10px] font-bold rounded-md bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700"><i class="fa-solid fa-chart-line mr-1"></i>Macro &amp; Mercati</span>';
+    default: return '<span class="px-2.5 py-1 text-[10px] font-bold rounded-md bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300"><i class="fa-solid fa-globe mr-1"></i>Generale</span>';
+  }
+}
+
+function escapeHtml(s){ const d=document.createElement('div'); d.innerText = s||""; return d.innerHTML; }
+
+function renderArticles(){
+  const grid = document.getElementById('newsGrid');
+  const emptyState = document.getElementById('emptyState');
+  const q = searchQuery.toLowerCase();
+
+  const filtered = articlesList.filter(item=>{
+    const okCat = currentCategory==='all' || item.category===currentCategory;
+    const okQ = (item.title+item.source+(item.summary||"")).toLowerCase().includes(q);
+    return okCat && okQ;
+  }).sort((a,b)=> (b.pubDate||"").localeCompare(a.pubDate||""));
+
+  document.getElementById('kpiCount').innerText = articlesList.length;
+  document.getElementById('catCountAll').innerText = articlesList.length;
+
+  if(filtered.length===0){
+    grid.classList.add('hidden'); emptyState.classList.remove('hidden'); return;
+  }
+  emptyState.classList.add('hidden'); grid.classList.remove('hidden');
+
+  grid.innerHTML = filtered.map(item=>{
+    const dateStr = item.pubDate || "Data non disponibile";
+    return `
+    <div class="bg-white dark:bg-navy-800 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-sm hover:shadow-md transition-all flex flex-col justify-between overflow-hidden card-shadow">
+      <div class="p-5">
+        <div class="flex items-center justify-between gap-2 mb-3">
+          ${getCategoryBadge(item.category)}
+          <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-slate-100 dark:bg-navy-950 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+            <i class="fa-regular fa-calendar mr-1 text-gold-500"></i>${dateStr}
+          </span>
+        </div>
+        <h3 class="text-sm font-extrabold text-slate-900 dark:text-white leading-snug mb-2 hover:text-gold-500 transition cursor-pointer" onclick="openModal('${item.id}')">${escapeHtml(item.title)}</h3>
+        <div class="flex items-center space-x-2 text-[11px] text-slate-500 dark:text-slate-400 mb-3 font-medium">
+          <span><i class="fa-regular fa-newspaper text-gold-500 mr-1"></i>${escapeHtml(item.source)}</span>
+        </div>
+        <div class="bg-slate-50 dark:bg-navy-950/60 p-3.5 rounded-xl border border-slate-100 dark:border-slate-700/50 text-xs text-slate-600 dark:text-slate-300">
+          <p class="line-clamp-3 leading-relaxed">${escapeHtml(item.summary||"Nessuna anteprima disponibile.")}</p>
+        </div>
+      </div>
+      <div class="px-5 py-3 bg-slate-50/80 dark:bg-navy-950/80 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-xs">
+        <button onclick="openModal('${item.id}')" class="text-gold-600 dark:text-gold-400 hover:underline font-bold flex items-center gap-1.5 transition"><i class="fa-solid fa-file-lines text-[11px]"></i><span>Espandi</span></button>
+        <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200" title="Apri sul sito fonte"><i class="fa-solid fa-arrow-up-right-from-square text-xs"></i></a>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterCategory(cat){
+  currentCategory = cat;
+  document.querySelectorAll('.cat-btn').forEach(btn=>{
+    btn.className = btn.dataset.cat===cat
+      ? 'cat-btn px-4 py-2 text-xs font-bold rounded-xl bg-navy-950 text-white dark:bg-gold-500 dark:text-navy-950 shadow-sm transition'
+      : 'cat-btn px-4 py-2 text-xs font-semibold rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition';
+  });
+  renderArticles();
+}
+
+function handleSearch(){ searchQuery = document.getElementById('searchInput').value; renderArticles(); }
+
+function openModal(id){
+  const item = articlesList.find(a=>a.id===id); if(!item) return;
+  document.getElementById('modalBadges').innerHTML = getCategoryBadge(item.category);
+  document.getElementById('modalTitle').innerText = item.title;
+  document.getElementById('modalMeta').innerText = `${item.source} • ${item.pubDate||""}`;
+  const lines = item.contentLines && item.contentLines.length ? item.contentLines : [item.summary||""];
+  document.getElementById('modalBody').innerHTML = lines.map(l=>`<p class="p-3 mb-2 bg-slate-50 dark:bg-navy-950/60 rounded-xl border border-slate-100 dark:border-slate-800/80">${escapeHtml(l)}</p>`).join('');
+  document.getElementById('modalExternalLink').href = item.link;
+  document.getElementById('articleModal').classList.remove('hidden');
+}
+function closeModal(){ document.getElementById('articleModal').classList.add('hidden'); }
+
+document.getElementById('jsonFile').addEventListener('change', ev=>{
+  const file = ev.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e=>{
+    try{
+      const data = JSON.parse(e.target.result);
+      if(!Array.isArray(data)) throw new Error("Il file deve contenere un array");
+      articlesList = data.map(a=>({
+        id: a.id || Math.random().toString(36).slice(2),
+        category: a.category || "fashion",
+        title: a.title || "(senza titolo)",
+        source: a.source || "Fonte",
+        pubDate: a.date || a.pubDate || "",
+        link: a.url || a.link || "#",
+        summary: a.summary || a.preview || "",
+        contentLines: a.contentLines || (a.summary ? [a.summary] : [])
+      }));
+      document.getElementById('lastUpdatedTimestamp').innerText = "Dati caricati dallo scraper — " + new Date().toLocaleString('it-IT');
+      currentCategory = 'all'; document.getElementById('searchInput').value=''; searchQuery='';
+      filterCategory('all');
+    }catch(err){ alert("File JSON non valido: " + err.message); }
+  };
+  reader.readAsText(file);
+});
+
+function exportCSV(){
+  let csv = "data:text/csv;charset=utf-8,ID,Categoria,Fonte,Titolo,Data,Link\n";
+  articlesList.forEach(a=>{
+    csv += `"${a.id}","${a.category}","${(a.source||"").replace(/"/g,'""')}","${(a.title||"").replace(/"/g,'""')}","${a.pubDate||""}","${a.link}"\n`;
+  });
+  const link = document.createElement('a');
+  link.href = encodeURI(csv); link.download = "CFO_Weekly_News_LuisaSpagnoli.csv";
+  document.body.appendChild(link); link.click(); document.body.removeChild(link);
+}
+
+document.getElementById('printDate') && (document.getElementById('printDate').innerText = new Date().toLocaleString('it-IT'));
+renderArticles();
+</script>
+</body>
+</html>

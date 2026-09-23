@@ -4,9 +4,9 @@ on:
   schedule:
     # Ogni giorno alle 06:00 UTC (08:00 ora italiana in estate, 07:00 in inverno)
     - cron: '0 6 * * *'
-  workflow_dispatch: {}   # permette anche l'avvio manuale dal tab "Actions" su GitHub
+  workflow_dispatch: {}   # Permette l'avvio manuale dal tab "Actions" su GitHub
 
-# Serve per dare al workflow il permesso di fare commit/push nel repo
+# Permesso necessario per fare commit/push nel repository
 permissions:
   contents: write
 
@@ -35,13 +35,4 @@ jobs:
           git add data.json
           git diff --staged --quiet || git commit -m "Aggiornamento automatico notizie $(date -u +'%Y-%m-%d')"
           git pull --rebase origin main
-          - name: Commit e push di data.json
-- name: Commit e push di data.json
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data.json
-          git commit -m "Aggiornamento automatico notizie" || exit 0
-          git pull --rebase origin main
           git push origin main
-

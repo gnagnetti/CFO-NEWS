@@ -1,0 +1,37 @@
+name: Aggiorna notizie CFO Weekly Report
+
+on:
+  schedule:
+    # Ogni giorno alle 06:00 UTC (08:00 ora italiana in estate, 07:00 in inverno)
+    - cron: '0 6 * * *'
+  workflow_dispatch: {}   # permette anche l'avvio manuale dal tab "Actions" su GitHub
+
+# Serve per dare al workflow il permesso di fare commit/push nel repo
+permissions:
+  contents: write
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Installa le dipendenze
+        run: pip install feedparser
+
+      - name: Esegui lo scraper
+        run: python3 scraper_cfo_report.py
+
+      - name: Commit e push di data.json (solo se è cambiato)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data.json
+          git diff --staged --quiet || git commit -m "Aggiornamento automatico notizie $(date -u +'%Y-%m-%d')"
+          git push

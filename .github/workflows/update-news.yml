@@ -36,11 +36,12 @@ jobs:
           git diff --staged --quiet || git commit -m "Aggiornamento automatico notizie $(date -u +'%Y-%m-%d')"
           git pull --rebase origin main
           - name: Commit e push di data.json
-  run: |
-    git config user.name "github-actions[bot]"
-    git config user.email "github-actions[bot]@users.noreply.github.com"
-    git add data.json
-    git commit -m "Aggiornamento automatico notizie" || exit 0
-    git pull --rebase origin main
-    git push origin main
-          git push
+- name: Commit e push di data.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data.json
+          git commit -m "Aggiornamento automatico notizie" || exit 0
+          git pull --rebase origin main
+          git push origin main
+

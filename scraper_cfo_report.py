@@ -112,6 +112,169 @@ PAMBIANCO_DIRECT_SECTIONS = [
     ("fashion_news", "Fashion News", "https://www.pambianconews.com/news-in-breve/"),
 ]
 
+DIRECT_RSS_SOURCES = [
+    # Finanza, Borsa & Mercati
+    ("MarketWatch", "https://feeds.content.dowjones.io/public/rss/mw_topstories", "macro"),
+    ("Investing.com", "https://www.investing.com/rss/news.rss", "macro"),
+    ("Seeking Alpha", "https://seekingalpha.com/market_currents.xml", "macro"),
+    ("The Wall Street Journal (Markets)", "https://feeds.a.dj.com/rss/RSSMarketsMain.xml", "macro"),
+    ("Fortune Magazine", "https://fortune.com/feed/", "macro"),
+    ("Business Insider", "https://www.businessinsider.com/rss", "macro"),
+    ("Forbes (Money/Finance)", "https://www.forbes.com/money/feed/", "tax"),
+    ("Barron's", "http://blogs.barrons.com/techtraderdaily/feed/", "macro"),
+    ("Yahoo Finance", "https://finance.yahoo.com/news/rssindex", "macro"),
+    ("The Economic Times", "https://economictimes.indiatimes.com/rssfeedstopstories.cms", "macro"),
+    # Finanza Europea & Italiana
+    ("Il Sole 24 Ore", "https://www.ilsole24ore.com/rss/finanza.xml", "tax"),
+    ("Milano Finanza", "https://www.milanofinanza.it/rss/rss_mercati.xml", "tax"),
+    ("SoldiOnline", "https://www.soldionline.it/rss/notizie", "tax"),
+    ("Cinco Días (Spagna)", "https://cincodias.elpais.com/rss/cincodias/portada.xml", "macro"),
+    ("Les Echos (Francia)", "https://www.lesechos.fr/rss/rss_finance.xml", "tax"),
+    ("Manager Magazin (Germania)", "https://www.manager-magazin.de/finanzen/index.rss", "macro"),
+    # Cripto, Central Banking & Analisi
+    ("CoinDesk", "https://www.coindesk.com/arc/outboundfeeds/rss/", "macro"),
+    ("CoinTelegraph", "https://cointelegraph.com/rss", "macro"),
+    ("Banca Centrale Europea (BCE Press)", "https://www.ecb.europa.eu/rss/press.html", "macro"),
+    ("Federal Reserve News", "https://www.federalreserve.gov/feeds/press_all.xml", "macro"),
+    ("IMF", "https://www.imf.org/en/News/rss", "macro"),
+    ("Financial Post", "https://financialpost.com/feed", "macro"),
+    ("Morningstar", "https://www.morningstar.com/rss/news.xml", "macro"),
+    ("World Economic Forum", "https://www.weforum.org/agenda/feed/", "macro"),
+    ("Economia & Finanza RaiNews", "https://www.rainews.it/rss/economia", "tax"),
+    # Fashion, Luxury & Retail
+    ("The Business of Fashion (BoF)", "https://www.businessoffashion.com/feed/", "fashion"),
+    ("Vogue Business", "https://www.voguebusiness.com/feed", "fashion"),
+    ("WWD", "https://wwd.com/feed/", "fashion"),
+    ("FashionNetwork", "https://ww.fashionnetwork.com/rss/news", "fashion"),
+    ("Fibre2Fashion", "https://feeds.feedburner.com/fibre2fashion/topnews", "fashion"),
+    ("Retail Dive", "https://www.retaildive.com/feeds/news/", "fashion"),
+    ("Drapers Online", "https://www.drapersonline.com/feed", "fashion"),
+    ("FashionUnited", "https://fashionunited.uk/rss-news", "fashion"),
+    ("Luxuo", "https://www.luxuo.com/feed", "fashion"),
+    ("The Fashion Law", "https://www.thefashionlaw.com/feed/", "fashion"),
+    ("Vogue US", "https://www.vogue.com/feed/rss", "fashion"),
+    ("GQ Magazine", "https://www.gq.com/feed/rss", "fashion"),
+    ("Elle Magazine", "https://www.elle.com/rss/all.xml/", "fashion"),
+    ("Harper's Bazaar", "https://www.harpersbazaar.com/rss/all.xml/", "fashion"),
+    ("Esquire", "https://www.esquire.com/rss/all.xml/", "fashion"),
+    ("Fashionista", "https://fashionista.com/.rss/full/", "fashion"),
+    ("Highsnobiety", "https://www.highsnobiety.com/feed/", "fashion"),
+    ("Hypebeast", "https://hypebeast.com/feed", "fashion"),
+    ("Marie Claire", "https://www.marieclaire.com/rss/all.xml/", "fashion"),
+    ("Coveteur", "https://coveteur.com/feed", "fashion"),
+    ("Sustainable Fashion Forum", "https://www.thesustainablefashionforum.com/feed", "esg"),
+    ("Sourcing Journal", "https://sourcingjournal.com/feed/", "esg"),
+    ("Robb Report", "https://robbreport.com/feed/", "fashion"),
+    ("Pambianco News RSS", "https://www.pambianconews.com/feed/", "fashion"),
+    ("Fashion Magazine", "https://www.fashionmagazine.it/rss", "fashion"),
+    # Finanza, Borsa & Mercati Russi
+    ("RBK Finance", "https://rssexport.rbc.ru/rbcnews/finance/30/full.rss", "macro"),
+    ("Investing.com Russia", "https://ru.investing.com/rss/news.rss", "macro"),
+    ("Kommersant Economia", "https://www.kommersant.ru/RSS/section-economics.xml", "macro"),
+    ("Kommersant Finanza", "https://www.kommersant.ru/RSS/section-finance.xml", "tax"),
+    ("Vedomosti Finanza", "https://www.vedomosti.ru/rss/issue/finance", "tax"),
+    ("Vedomosti Mercati", "https://www.vedomosti.ru/rss/rubric/finance/markets", "macro"),
+    ("Banca Centrale della Russia (CBR)", "https://www.cbr.ru/rss/RssNews", "macro"),
+    ("Borsa di Mosca (MOEX)", "https://www.moex.com/export/news.aspx?cat=1", "macro"),
+    ("Finam.ru Mercati", "https://www.finam.ru/analysis/conews/rsspoint/", "macro"),
+    ("Finam.ru Notizie", "https://www.finam.ru/international/advanced/rsspoint/", "macro"),
+    ("TASS Economia", "https://tass.ru/rss/v2.xml?sections=MjI%3D", "macro"),
+    ("RIA Novosti Economia", "https://ria.ru/export/rss2/economy/index.xml", "macro"),
+    ("Interfax Economia", "https://www.interfax.ru/rss.asp?sec=1440", "macro"),
+    ("Gazeta.ru Business", "https://www.gazeta.ru/export/rss/business_more.xml", "macro"),
+    ("Lenta.ru Economia", "https://lenta.ru/rss/news/economics", "macro"),
+    ("Izvestia Economia", "https://iz.ru/xml/rss/ekonomika.xml", "macro"),
+    ("Prime Business News", "https://1prime.ru/export/rss2/index.xml", "macro"),
+    ("Frank Media", "https://frankmedia.ru/feed", "tax"),
+    ("Banki.ru News", "https://www.banki.ru/xml/news.rss", "tax"),
+    ("Banki.ru Analisi", "https://www.banki.ru/xml/daytheme.rss", "macro"),
+    ("BCS Express", "https://bcs-express.ru/rss", "macro"),
+    ("BFM.ru Economia", "https://www.bfm.ru/news/data/rss/economy.xml", "macro"),
+    ("RBC Investments", "https://rssexport.rbc.ru/rbcnews/quote/30/full.rss", "macro"),
+    ("Expert Magazine", "https://expert.ru/rss/economics/", "macro"),
+    ("Finversia", "https://www.finversia.ru/rss/news", "macro"),
+    # Moda, Lusso & Retail Russi
+    ("Fashion-Fashion.ru", "https://fashion-fashion.ru/index.php?option=com_ninja&view=rss&format=feed", "fashion"),
+    ("Profashion.ru", "https://profashion.ru/rss/", "fashion"),
+    ("FashionUnited Russia", "https://fashionunited.ru/rss-news", "fashion"),
+    ("Intermoda.ru", "https://www.intermoda.ru/rss.xml", "fashion"),
+    ("Moda.ru", "https://www.moda.ru/rss.xml", "fashion"),
+    ("Bein.ru", "https://www.be-in.ru/rss.xml", "fashion"),
+    ("RBC Style", "https://rssexport.rbc.ru/rbcnews/style/30/full.rss", "fashion"),
+    ("Kommersant Style", "https://www.kommersant.ru/RSS/section-style.xml", "fashion"),
+    ("Vedomosti Lifestyle", "https://www.vedomosti.ru/rss/rubric/lifestyle", "fashion"),
+    ("The Symbol Russia", "https://www.thesymbol.ru/rss/", "fashion"),
+    ("Buro 24/7 Russia", "https://www.buro247.ru/rss/", "fashion"),
+    ("Marie Claire Russia", "https://www.marieclaire.ru/rss/", "fashion"),
+    ("Grazia Russia", "https://graziamagazine.ru/rss/", "fashion"),
+    ("VoICE Russia", "https://www.thevoicefire.ru/rss/", "fashion"),
+    ("RBC Retail", "https://rssexport.rbc.ru/rbcnews/retail/30/full.rss", "fashion"),
+    ("Shopping Center Russia", "https://www.shoppingcenter.ru/rss.xml", "fashion"),
+    ("Wday.ru", "https://www.wday.ru/rss/", "fashion"),
+    ("Woman.ru", "https://www.woman.ru/rss/", "fashion"),
+    ("Spletnik", "https://www.spletnik.ru/rss", "fashion"),
+    ("Peopletalk Russia", "https://peopletalk.ru/feed/", "fashion"),
+    ("ModaNews.ru", "https://modanews.ru/rss", "fashion"),
+    ("Moda-Online", "https://www.moda-online.ru/rss/", "fashion"),
+    ("Lenta.ru Style", "https://lenta.ru/rss/news/style", "fashion"),
+    ("Gazeta.ru Style", "https://www.gazeta.ru/export/rss/style_more.xml", "fashion"),
+    ("The Mood Magazine", "https://themoodmagazine.com/feed/", "fashion"),
+    # Fashion & Magazine Europa
+    ("FashionUnited Francia", "https://fashionunited.fr/rss-actualites-mode", "fashion"),
+    ("FashionUnited Germania", "https://fashionunited.de/rss-modenachrichten", "fashion"),
+    ("FashionUnited Spagna", "https://fashionunited.es/rss-noticias-moda", "fashion"),
+    ("Journal du Textile", "https://www.journaldutextile.com/rss", "fashion"),
+    ("TextilWirtschaft", "https://www.textilwirtschaft.de/rss/news.xml", "fashion"),
+    ("Vogue France", "https://www.vogue.fr/feed/rss", "fashion"),
+    ("GQ UK", "https://www.gq-magazine.co.uk/feed/rss", "fashion"),
+    ("Vogue UK", "https://www.vogue.co.uk/feed/rss", "fashion"),
+    ("Elle UK", "https://www.elle.com/uk/rss/all.xml/", "fashion"),
+    ("Harper's Bazaar UK", "https://www.harpersbazaar.com/uk/rss/all.xml/", "fashion"),
+    ("Marie Claire UK", "https://www.marieclaire.co.uk/feed", "fashion"),
+    ("Dazed Digital", "https://www.dazeddigital.com/rss", "fashion"),
+    ("i-D Magazine", "https://i-d.co/feed/", "fashion"),
+    ("Wallpaper", "https://www.wallpaper.com/feeds/home", "fashion"),
+    ("Self Service Magazine", "https://selfservicemagazine.com/feed/", "fashion"),
+    ("Ecotextile News", "https://www.ecotextile.com/rss/", "esg"),
+    ("Fashion Revolution Blog", "https://www.fashionrevolution.org/feed/", "esg"),
+    ("Textile Today", "https://www.textiletoday.com.bd/feed/", "esg"),
+    ("Just-Style RSS", "https://www.just-style.com/feed/", "esg"),
+    ("Luxe Digital", "https://luxe.digital/feed/", "fashion"),
+    # Fashion & Retail USA
+    ("Glossy", "https://www.glossy.co/feed/", "fashion"),
+    ("Footwear News", "https://footwearnews.com/feed/", "fashion"),
+    ("Apparel News", "https://www.apparelnews.net/rss/", "fashion"),
+    ("Forbes Retail", "https://www.forbes.com/retail/feed/", "fashion"),
+    ("Business Insider Retail", "https://www.businessinsider.com/retail/rss", "fashion"),
+    ("Complex Style", "https://www.complex.com/style/rss", "fashion"),
+    ("Remake World", "https://remake.world/feed/", "esg"),
+    ("Ecocult", "https://ecocult.com/feed/", "esg"),
+    ("Good On You", "https://goodonyou.eco/feed/", "esg"),
+    # Fashion & Retail Italia
+    ("Pambianco Beauty", "https://beauty.pambianconews.com/feed/", "fashion"),
+    ("Il Sole 24 Ore Moda", "https://www.ilsole24ore.com/rss/moda.xml", "fashion"),
+    ("Milano Finanza Fashion", "https://www.milanofinanza.it/rss/rss_fashion.xml", "fashion"),
+    ("FashionNetwork Italia RSS", "https://it.fashionnetwork.com/rss/news", "fashion"),
+    ("FashionUnited Italia", "https://fashionunited.it/rss-notizie-moda", "fashion"),
+    ("Sistema Moda Italia", "https://www.sistemamodaitalia.it/rss", "fashion"),
+    ("Distribuzione Moderna", "https://www.distribuzionemoderna.it/rss", "fashion"),
+    ("Vogue Italia", "https://www.vogue.it/feed/rss", "fashion"),
+    ("GQ Italia", "https://www.gqitalia.it/feed/rss", "fashion"),
+    ("Elle Italia", "https://www.elle.com/it/rss/all.xml/", "fashion"),
+    ("Harper's Bazaar Italia", "https://www.harpersbazaar.com/it/rss/all.xml/", "fashion"),
+    ("Marie Claire Italia", "https://www.marieclaire.it/rss/all.xml/", "fashion"),
+    ("Vanity Fair Italia", "https://www.vanityfair.it/feed/rss", "fashion"),
+    ("Io Donna Moda", "https://www.iodonna.it/moda/feed/", "fashion"),
+    ("AMICA", "https://www.amica.it/feed/", "fashion"),
+    ("Grazia Italia", "https://www.grazia.it/feed", "fashion"),
+    ("MFFashion RSS", "https://www.mffashion.com/rss", "fashion"),
+    ("L'Officiel Italia", "https://www.lofficielitalia.com/rss", "fashion"),
+    ("MANINTOWN", "https://www.manintown.com/feed/", "fashion"),
+    ("nss magazine", "https://www.nssmag.com/it/rss", "fashion"),
+    ("Artribune Moda", "https://www.artribune.com/category/viaggi/moda/feed/", "fashion"),
+    ("Exibart Moda", "https://www.exibart.com/moda/feed/", "fashion"),
+]
+
 # ---------------------------------------------------------------------
 # Parole chiave per categoria: ogni categoria usa il proprio set, così una
 # fonte generalista come Reuters/Bloomberg non torna sempre gli stessi
@@ -297,6 +460,56 @@ def scrape_pambianco_section(category: str, source_name: str, url: str, days_bac
     return results
 
 
+def fetch_direct_rss_feed(source_name: str, url: str, category: str, days_back: int):
+    log.info("Direct RSS fetch %-32s [%s]", source_name, category)
+    raw = fetch_with_retry(url)
+    feed = feedparser.parse(raw) if raw else feedparser.parse(url)
+
+    cutoff = datetime.now(timezone.utc) - timedelta(days=days_back)
+    results = []
+    for entry in feed.entries:
+        title = getattr(entry, "title", "").strip()
+        link = getattr(entry, "link", "").strip()
+        if not title or not link:
+            continue
+
+        dt = None
+        if hasattr(entry, "published_parsed") and entry.published_parsed:
+            try:
+                dt = datetime(*entry.published_parsed[:6], tzinfo=timezone.utc)
+            except Exception:
+                dt = None
+        elif hasattr(entry, "updated_parsed") and entry.updated_parsed:
+            try:
+                dt = datetime(*entry.updated_parsed[:6], tzinfo=timezone.utc)
+            except Exception:
+                dt = None
+
+        if dt is not None and dt < cutoff:
+            continue
+
+        date_str = dt.strftime("%Y-%m-%d") if dt else ""
+        summary = clean_text(getattr(entry, "summary", getattr(entry, "description", "")))[:300]
+        if not summary:
+            summary = title
+
+        score = score_entry(category, title, summary)
+        uid = hashlib.md5(link.encode("utf-8")).hexdigest()[:10]
+
+        results.append({
+            "id": uid,
+            "category": category,
+            "categoryLabel": CATEGORY_LABELS.get(category, category),
+            "source": source_name,
+            "title": title,
+            "url": link,
+            "date": date_str,
+            "summary": summary,
+            "score": score,
+        })
+    return results
+
+
 def fetch_source(category: str, source_name: str, domain: str, days_back: int):
     keywords = CATEGORY_KEYWORDS.get(category, THEME_KEYWORDS + BRAND_KEYWORDS)
     url = build_feed_url(domain, keywords)
@@ -370,6 +583,9 @@ def main():
         }
         for cat_code, s_name, s_url in PAMBIANCO_DIRECT_SECTIONS:
             futures[pool.submit(scrape_pambianco_section, cat_code, s_name, s_url, args.days)] = f"Pambianco {s_name}"
+
+        for s_name, s_url, cat_code in DIRECT_RSS_SOURCES:
+            futures[pool.submit(fetch_direct_rss_feed, s_name, s_url, cat_code, args.days)] = s_name
 
         for future in concurrent.futures.as_completed(futures):
             source_name = futures[future]

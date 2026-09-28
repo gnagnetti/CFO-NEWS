@@ -39,6 +39,7 @@ from urllib.parse import quote
 
 import feedparser
 import requests
+from bs4 import BeautifulSoup
 
 logging.basicConfig(
     level=logging.INFO,
@@ -96,6 +97,8 @@ CATEGORY_SOURCES = {
 }
 
 CATEGORY_LABELS = {
+    "openings": "Openings",
+    "fashion_news": "Fashion News",
     "fashion": "Fashion Business",
     "macro": "Macro & Mercati",
     "tax": "Finanza & Fisco",
@@ -103,6 +106,11 @@ CATEGORY_LABELS = {
     "competitors": "Competitor Quotati",
     "commodities_fx": "Materie Prime & Cambi",
 }
+
+PAMBIANCO_DIRECT_SECTIONS = [
+    ("openings", "Openings", "https://www.pambianconews.com/opening/"),
+    ("fashion_news", "Fashion News", "https://www.pambianconews.com/news-in-breve/"),
+]
 
 # ---------------------------------------------------------------------
 # Parole chiave per categoria: ogni categoria usa il proprio set, così una
@@ -220,6 +228,75 @@ def score_entry(category: str, title: str, summary: str) -> int:
     return score
 
 
+def scrape_pambianco_section(category: str, source_name: str, url: str, days_back: int):
+    log.info("Direct scraping Pambianco %-20s [%s]", source_name, category)
+    raw = fetch_with_retry(url)
+    if not raw:
+        return []
+    soup = BeautifulSoup(raw, "html.parser")
+    cutoff = datetime.now(timezone.utc) - timedelta(days=days_back)
+    results = []
+    seen = set()
+
+    for post in soup.find_all("article", class_=lambda c: c and "jeg_post" in c):
+        title_el = post.find(class_="jeg_post_title")
+        if not title_el:
+            continue
+        a_tag = title_el.find("a")
+        if not a_tag:
+            continue
+        link = a_tag.get("href", "").strip()
+        title = clean_text(a_tag.text)
+        if not link or link in seen or not title:
+            continue
+        seen.add(link)
+
+        date_str = ""
+        dt = None
+        date_el = post.find(class_="jeg_meta_date")
+        if date_el:
+            raw_d = date_el.text.strip()
+            m = re.search(r"(\d{2})/(\d{2})/(\d{4})", raw_d)
+            if m:
+                date_str = f"{m.group(3)}-{m.group(2)}-{m.group(1)}"
+                try:
+                    dt = datetime.strptime(date_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                except ValueError:
+                    dt = None
+        if not date_str:
+            m = re.search(r"/(\d{4})/(\d{2})/(\d{2})/", link)
+            if m:
+                date_str = f"{m.group(1)}-{m.group(2)}-{m.group(3)}"
+                try:
+                    dt = datetime.strptime(date_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                except ValueError:
+                    dt = None
+
+        if dt is not None and dt < cutoff:
+            continue
+
+        excerpt_el = post.find(class_="jeg_post_excerpt")
+        summary = clean_text(excerpt_el.text) if excerpt_el else ""
+        if not summary:
+            summary = title
+
+        score = score_entry(category, title, summary)
+        uid = hashlib.md5(link.encode("utf-8")).hexdigest()[:10]
+
+        results.append({
+            "id": uid,
+            "category": category,
+            "categoryLabel": CATEGORY_LABELS.get(category, category),
+            "source": f"Pambianco News — {source_name}",
+            "title": title,
+            "url": link,
+            "date": date_str,
+            "summary": summary,
+            "score": score,
+        })
+    return results
+
+
 def fetch_source(category: str, source_name: str, domain: str, days_back: int):
     keywords = CATEGORY_KEYWORDS.get(category, THEME_KEYWORDS + BRAND_KEYWORDS)
     url = build_feed_url(domain, keywords)
@@ -291,6 +368,9 @@ def main():
             pool.submit(fetch_source, category, source_name, domain, args.days): source_name
             for category, source_name, domain in jobs
         }
+        for cat_code, s_name, s_url in PAMBIANCO_DIRECT_SECTIONS:
+            futures[pool.submit(scrape_pambianco_section, cat_code, s_name, s_url, args.days)] = f"Pambianco {s_name}"
+
         for future in concurrent.futures.as_completed(futures):
             source_name = futures[future]
             try:

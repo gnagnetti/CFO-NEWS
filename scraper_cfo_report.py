@@ -107,6 +107,64 @@ CATEGORY_LABELS = {
     "commodities_fx": "Materie Prime & Cambi",
 }
 
+REGION_LABELS = {
+    "mondo": "Mondo",
+    "italia": "Italia",
+    "europa": "Europa",
+    "russia": "Russia",
+    "usa": "USA",
+}
+
+
+def detect_region(source: str, title: str, summary: str, url: str) -> tuple[str, str]:
+    """Determina la regione geografica dell'articolo (mondo, italia, europa, russia, usa)."""
+    s = (source or "").lower()
+    t = (title or "").lower()
+    m = (summary or "").lower()
+    u = (url or "").lower()
+    text = f"{s} {t} {m}"
+
+    # 1. Russia
+    if ".ru" in u or "russia" in s or any(c in text for c in "абвгдеёжзийклмнопрстуфхцчшщъыьэюя"):
+        return "russia", REGION_LABELS["russia"]
+    if re.search(r"\b(russia|russian|mosca|rublo|kremlin|putin)\b", text):
+        return "russia", REGION_LABELS["russia"]
+
+    # 2. Italia
+    if any(k in s for k in [
+        "sole 24 ore", "pambianco", "milano finanza", "vogue italia", "elle italia",
+        "gq italia", "vanity fair italia", "amica", "grazia italia", "artribune",
+        "exibart", "rainews", "soldionline", "distribuzione moderna", "lofficiel italia",
+        "manintown", "nss magazine", "mffashion", "sistema moda italia", "fashionnetwork italia"
+    ]):
+        return "italia", REGION_LABELS["italia"]
+    if re.search(r"\b(italia|italian|italiana|italiani|italiano|milano|roma|fisco|agenzia delle entrate|banca d'italia|made in italy|luisa spagnoli)\b", text):
+        return "italia", REGION_LABELS["italia"]
+
+    # 3. USA
+    if any(k in s for k in [
+        "marketwatch", "seeking alpha", "wsj", "wall street journal", "fortune",
+        "business insider", "forbes", "barron", "federal reserve", "vogue us",
+        "gq magazine", "fashionista", "retail dive", "footwear news", "glossy", "coveteur"
+    ]):
+        return "usa", REGION_LABELS["usa"]
+    if re.search(r"\b(usa|u\.s\.|united states|stati uniti|fed|federal reserve|wall street|new york|washington)\b", text):
+        return "usa", REGION_LABELS["usa"]
+
+    # 4. Europa
+    if any(k in s for k in [
+        "cinco días", "les echos", "manager magazin", "banca centrale europea",
+        "ecb", "fashionunited francia", "fashionunited germania", "fashionunited spagna",
+        "journal du textile", "textilwirtschaft", "vogue france", "gq uk", "vogue uk",
+        "elle uk", "marie claire uk", "dazed", "i-d magazine"
+    ]):
+        return "europa", REGION_LABELS["europa"]
+    if re.search(r"\b(europa|europe|european|ue|unione europea|bce|ecb|germania|germany|francia|france|spagna|spain|regno unito|uk|london|londra|parigi|paris|bruxelles|brussels)\b", text):
+        return "europa", REGION_LABELS["europa"]
+
+    # Default: Mondo
+    return "mondo", REGION_LABELS["mondo"]
+
 PAMBIANCO_DIRECT_SECTIONS = [
     ("openings", "Openings", "https://www.pambianconews.com/opening/"),
     ("fashion_news", "Fashion News", "https://www.pambianconews.com/news-in-breve/"),
@@ -445,11 +503,14 @@ def scrape_pambianco_section(category: str, source_name: str, url: str, days_bac
 
         score = score_entry(category, title, summary)
         uid = hashlib.md5(link.encode("utf-8")).hexdigest()[:10]
+        region, region_label = detect_region(f"Pambianco News — {source_name}", title, summary, link)
 
         results.append({
             "id": uid,
             "category": category,
             "categoryLabel": CATEGORY_LABELS.get(category, category),
+            "region": region,
+            "regionLabel": region_label,
             "source": f"Pambianco News — {source_name}",
             "title": title,
             "url": link,
@@ -495,11 +556,14 @@ def fetch_direct_rss_feed(source_name: str, url: str, category: str, days_back: 
 
         score = score_entry(category, title, summary)
         uid = hashlib.md5(link.encode("utf-8")).hexdigest()[:10]
+        region, region_label = detect_region(source_name, title, summary, link)
 
         results.append({
             "id": uid,
             "category": category,
             "categoryLabel": CATEGORY_LABELS.get(category, category),
+            "region": region,
+            "regionLabel": region_label,
             "source": source_name,
             "title": title,
             "url": link,
@@ -538,11 +602,14 @@ def fetch_source(category: str, source_name: str, domain: str, days_back: int):
         summary = clean_text(getattr(entry, "summary", ""))[:300]
         score = score_entry(category, title, summary)
         uid = hashlib.md5(link.encode("utf-8")).hexdigest()[:10]
+        region, region_label = detect_region(source_name, title, summary, link)
 
         results.append({
             "id": uid,
             "category": category,
             "categoryLabel": CATEGORY_LABELS[category],
+            "region": region,
+            "regionLabel": region_label,
             "source": source_name,
             "title": title,
             "url": link,

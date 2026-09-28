@@ -98,6 +98,19 @@
     </div>
   </div>
 
+  <div class="bg-white dark:bg-navy-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm mb-6 no-print">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div class="flex items-center space-x-2 overflow-x-auto pb-1 sm:pb-0" id="regionTabs">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mr-1 whitespace-nowrap"><i class="fa-solid fa-earth-americas text-gold-500 mr-1.5"></i>Area Geografica:</span>
+        <button onclick="filterRegion('mondo')" data-reg="mondo" class="reg-btn px-3.5 py-1.5 text-xs font-bold rounded-xl bg-navy-950 text-white dark:bg-gold-500 dark:text-navy-950 shadow-sm transition whitespace-nowrap"><i class="fa-solid fa-globe mr-1 text-sky-400"></i>Mondo (<span id="regCountMondo">0</span>)</button>
+        <button onclick="filterRegion('italia')" data-reg="italia" class="reg-btn px-3.5 py-1.5 text-xs font-semibold rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition whitespace-nowrap"><i class="fa-solid fa-flag mr-1 text-emerald-500"></i>Italia (<span id="regCountItalia">0</span>)</button>
+        <button onclick="filterRegion('europa')" data-reg="europa" class="reg-btn px-3.5 py-1.5 text-xs font-semibold rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition whitespace-nowrap"><i class="fa-solid fa-earth-europe mr-1 text-blue-500"></i>Europa (<span id="regCountEuropa">0</span>)</button>
+        <button onclick="filterRegion('russia')" data-reg="russia" class="reg-btn px-3.5 py-1.5 text-xs font-semibold rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition whitespace-nowrap"><i class="fa-solid fa-building-columns mr-1 text-red-500"></i>Russia (<span id="regCountRussia">0</span>)</button>
+        <button onclick="filterRegion('usa')" data-reg="usa" class="reg-btn px-3.5 py-1.5 text-xs font-semibold rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition whitespace-nowrap"><i class="fa-solid fa-flag-usa mr-1 text-indigo-500"></i>USA (<span id="regCountUsa">0</span>)</button>
+      </div>
+    </div>
+  </div>
+
   <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 no-print">
     <div class="flex items-center space-x-1.5 overflow-x-auto pb-1 md:pb-0" id="categoryTabs">
       <button onclick="filterCategory('all')" data-cat="all" class="cat-btn px-4 py-2 text-xs font-bold rounded-xl bg-navy-950 text-white dark:bg-gold-500 dark:text-navy-950 shadow-sm transition">Tutti (<span id="catCountAll">0</span>)</button>
@@ -198,10 +211,36 @@ let articlesList = [
 ];
 
 let currentCategory = "all";
+let currentRegion = "mondo";
 let searchQuery = "";
 
 function toggleTheme(){
   document.documentElement.classList.toggle('dark');
+}
+
+function detectRegionItem(item){
+  if(item.region) return item.region.toLowerCase();
+  const s = (item.source||"").toLowerCase();
+  const t = (item.title||"").toLowerCase();
+  const m = (item.summary||"").toLowerCase();
+  const u = (item.link||item.url||"").toLowerCase();
+  const text = `${s} ${t} ${m}`;
+
+  if(u.includes('.ru') || s.includes('russia') || /[а-яё]/i.test(text) || /\b(russia|russian|mosca|rublo|kremlin|putin)\b/i.test(text)) return 'russia';
+  if(['sole 24 ore','pambianco','milano finanza','vogue italia','elle italia','gq italia','vanity fair italia','amica','grazia italia','artribune','exibart','rainews','soldionline','distribuzione moderna','lofficiel italia','manintown','nss magazine','mffashion','sistema moda italia','fashionnetwork italia'].some(k=>s.includes(k)) || /\b(italia|italian|italiana|italiani|italiano|milano|roma|fisco|agenzia delle entrate|banca d'italia|made in italy|luisa spagnoli)\b/i.test(text)) return 'italia';
+  if(['marketwatch','seeking alpha','wsj','wall street journal','fortune','business insider','forbes','barron','federal reserve','vogue us','gq magazine','fashionista','retail dive','footwear news','glossy','coveteur'].some(k=>s.includes(k)) || /\b(usa|u\.s\.|united states|stati uniti|fed|federal reserve|wall street|new york|washington)\b/i.test(text)) return 'usa';
+  if(['cinco días','les echos','manager magazin','banca centrale europea','ecb','fashionunited francia','fashionunited germania','fashionunited spagna','journal du textile','textilwirtschaft','vogue france','gq uk','vogue uk','elle uk','marie claire uk','dazed','i-d magazine'].some(k=>s.includes(k)) || /\b(europa|europe|european|ue|unione europea|bce|ecb|germania|germany|francia|france|spagna|spain|regno unito|uk|london|londra|parigi|paris|bruxelles|brussels)\b/i.test(text)) return 'europa';
+  return 'mondo';
+}
+
+function getRegionBadge(reg){
+  switch(reg){
+    case 'italia': return '<span class="px-2.5 py-1 text-[10px] font-bold rounded-md bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700"><i class="fa-solid fa-flag mr-1"></i>Italia</span>';
+    case 'europa': return '<span class="px-2.5 py-1 text-[10px] font-bold rounded-md bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-300 border border-blue-200 dark:border-blue-700"><i class="fa-solid fa-earth-europe mr-1"></i>Europa</span>';
+    case 'russia': return '<span class="px-2.5 py-1 text-[10px] font-bold rounded-md bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300 border border-red-200 dark:border-red-700"><i class="fa-solid fa-building-columns mr-1"></i>Russia</span>';
+    case 'usa': return '<span class="px-2.5 py-1 text-[10px] font-bold rounded-md bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700"><i class="fa-solid fa-flag-usa mr-1"></i>USA</span>';
+    default: return '<span class="px-2.5 py-1 text-[10px] font-bold rounded-md bg-sky-100 text-sky-800 dark:bg-sky-900/60 dark:text-sky-300 border border-sky-200 dark:border-sky-700"><i class="fa-solid fa-globe mr-1"></i>Mondo</span>';
+  }
 }
 
 function getCategoryBadge(cat){
@@ -219,19 +258,36 @@ function getCategoryBadge(cat){
 
 function escapeHtml(s){ const d=document.createElement('div'); d.innerText = s||""; return d.innerHTML; }
 
+function updateCounts(){
+  const regCounts = { mondo:0, italia:0, europa:0, russia:0, usa:0 };
+  articlesList.forEach(item => {
+    const r = detectRegionItem(item);
+    if(regCounts[r] !== undefined) regCounts[r]++;
+  });
+  document.getElementById('regCountMondo').innerText = regCounts.mondo;
+  document.getElementById('regCountItalia').innerText = regCounts.italia;
+  document.getElementById('regCountEuropa').innerText = regCounts.europa;
+  document.getElementById('regCountRussia').innerText = regCounts.russia;
+  document.getElementById('regCountUsa').innerText = regCounts.usa;
+}
+
 function renderArticles(){
   const grid = document.getElementById('newsGrid');
   const emptyState = document.getElementById('emptyState');
   const q = searchQuery.toLowerCase();
 
+  updateCounts();
+
   const filtered = articlesList.filter(item=>{
+    const itemReg = detectRegionItem(item);
+    const okReg = currentRegion === 'mondo' || itemReg === currentRegion;
     const okCat = currentCategory==='all' || item.category===currentCategory;
     const okQ = (item.title+item.source+(item.summary||"")).toLowerCase().includes(q);
-    return okCat && okQ;
+    return okReg && okCat && okQ;
   }).sort((a,b)=> (b.pubDate||"").localeCompare(a.pubDate||""));
 
-  document.getElementById('kpiCount').innerText = articlesList.length;
-  document.getElementById('catCountAll').innerText = articlesList.length;
+  document.getElementById('kpiCount').innerText = filtered.length;
+  document.getElementById('catCountAll').innerText = articlesList.filter(a => currentRegion === 'mondo' || detectRegionItem(a) === currentRegion).length;
 
   if(filtered.length===0){
     grid.classList.add('hidden'); emptyState.classList.remove('hidden'); return;
@@ -240,12 +296,16 @@ function renderArticles(){
 
   grid.innerHTML = filtered.map(item=>{
     const dateStr = item.pubDate || "Data non disponibile";
+    const itemReg = detectRegionItem(item);
     return `
     <div class="bg-white dark:bg-navy-800 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-sm hover:shadow-md transition-all flex flex-col justify-between overflow-hidden card-shadow">
       <div class="p-5">
         <div class="flex items-center justify-between gap-2 mb-3">
-          ${getCategoryBadge(item.category)}
-          <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-slate-100 dark:bg-navy-950 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+          <div class="flex items-center space-x-1.5 flex-wrap gap-y-1">
+            ${getCategoryBadge(item.category)}
+            ${getRegionBadge(itemReg)}
+          </div>
+          <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-slate-100 dark:bg-navy-950 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 whitespace-nowrap">
             <i class="fa-regular fa-calendar mr-1 text-gold-500"></i>${dateStr}
           </span>
         </div>
@@ -265,6 +325,16 @@ function renderArticles(){
   }).join('');
 }
 
+function filterRegion(reg){
+  currentRegion = reg;
+  document.querySelectorAll('.reg-btn').forEach(btn=>{
+    btn.className = btn.dataset.reg===reg
+      ? 'reg-btn px-3.5 py-1.5 text-xs font-bold rounded-xl bg-navy-950 text-white dark:bg-gold-500 dark:text-navy-950 shadow-sm transition whitespace-nowrap'
+      : 'reg-btn px-3.5 py-1.5 text-xs font-semibold rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition whitespace-nowrap';
+  });
+  renderArticles();
+}
+
 function filterCategory(cat){
   currentCategory = cat;
   document.querySelectorAll('.cat-btn').forEach(btn=>{
@@ -279,7 +349,8 @@ function handleSearch(){ searchQuery = document.getElementById('searchInput').va
 
 function openModal(id){
   const item = articlesList.find(a=>a.id===id); if(!item) return;
-  document.getElementById('modalBadges').innerHTML = getCategoryBadge(item.category);
+  const itemReg = detectRegionItem(item);
+  document.getElementById('modalBadges').innerHTML = `${getCategoryBadge(item.category)} ${getRegionBadge(itemReg)}`;
   document.getElementById('modalTitle').innerText = item.title;
   document.getElementById('modalMeta').innerText = `${item.source} • ${item.pubDate||""}`;
   const lines = item.contentLines && item.contentLines.length ? item.contentLines : [item.summary||""];
@@ -299,6 +370,8 @@ document.getElementById('jsonFile').addEventListener('change', ev=>{
       articlesList = data.map(a=>({
         id: a.id || Math.random().toString(36).slice(2),
         category: a.category || "fashion",
+        region: a.region || "",
+        regionLabel: a.regionLabel || "",
         title: a.title || "(senza titolo)",
         source: a.source || "Fonte",
         pubDate: a.date || a.pubDate || "",
@@ -315,9 +388,10 @@ document.getElementById('jsonFile').addEventListener('change', ev=>{
 });
 
 function exportCSV(){
-  let csv = "data:text/csv;charset=utf-8,ID,Categoria,Fonte,Titolo,Data,Link\n";
+  let csv = "data:text/csv;charset=utf-8,ID,Categoria,Regione,Fonte,Titolo,Data,Link\n";
   articlesList.forEach(a=>{
-    csv += `"${a.id}","${a.category}","${(a.source||"").replace(/"/g,'""')}","${(a.title||"").replace(/"/g,'""')}","${a.pubDate||""}","${a.link}"\n`;
+    const reg = detectRegionItem(a);
+    csv += `"${a.id}","${a.category}","${reg}","${(a.source||"").replace(/"/g,'""')}","${(a.title||"").replace(/"/g,'""')}","${a.pubDate||""}","${a.link}"\n`;
   });
   const link = document.createElement('a');
   link.href = encodeURI(csv); link.download = "CFO_Weekly_News_LuisaSpagnoli.csv";
@@ -339,6 +413,8 @@ async function autoLoadData(){
     articlesList = data.map(a=>({
       id: a.id || Math.random().toString(36).slice(2),
       category: a.category || "fashion",
+      region: a.region || "",
+      regionLabel: a.regionLabel || "",
       title: a.title || "(senza titolo)",
       source: a.source || "Fonte",
       pubDate: a.date || a.pubDate || "",

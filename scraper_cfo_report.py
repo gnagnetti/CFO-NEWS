@@ -105,7 +105,50 @@ CATEGORY_LABELS = {
     "esg": "ESG & Supply Chain",
     "competitors": "Competitor Quotati",
     "commodities_fx": "Materie Prime & Cambi",
+    "attualita": "Attualità",
 }
+
+ECONOMY_FINANCE_KEYWORDS = [
+    "fisco", "tass", "credit", "impost", "bilanc", "inflaz", "bce", "fed", "tassi", "mercat", "bors", "azion",
+    "trimestral", "semestral", "pil", "gdp", "export", "dazi", "cfo", "ipo", "buyback", "utili", "dividend", "ricav", "fatturat",
+    "finanz", "fiscal", "banc", "bank", "scontrin", "pos", "m&a", "acquisiz", "opa", "quotaz", "titol", "spread",
+    "rendiment", "dollar", "euro", "commerci", "valut", "monetar", "investiment", "fondi", "prezz", "costo", "costi",
+    "debit", "defic", "earning", "stock", "share", "revenue", "profit", "yield", "macro", "rate", "central bank",
+    "economi", "economia", "impres", "aziend", "dichiaraz", "versament", "accertament", "dogan", "sanzion", "societ",
+    "mercato", "retail", "privatiz", "risparmi", "obbligaz", "manovra", "legge di bilancio", "f24", "btp", "s&p", "ocse",
+    "oat", "bund", "stima", "stime", "cedol", "portafogli", "gestion", "motori", "risultat", "margin", "ebitda",
+    "carburanti", "price cap", "petrol", "oil", "greggio", "oro", "gold", "riforma", "norma", "decreto", "decreti",
+    "vende", "rilancia", "riorganizza", "investe", "supply chain", "pmi", "produzion"
+]
+
+ATTUALITA_KEYWORDS = [
+    "onu", "licei", "scuola", "universit", "terra madre", "mostra", "teatro", "concerto", "musica", "spettacolo",
+    "sport", "calcio", "partita", "serie a", "champions", "tennis", "olimpiad", "ricetta", "cucina", "chef",
+    "ristorante", "vino", "meteo", "cronaca", "gossip", "vip", "matrimonio", "libr", "scrittor", "romanzo",
+    "papa", "vaticano", "cinema", "film", "guerra", "zar", "putin", "diplomaz", "elezion", "oops! pagina non trovata"
+]
+
+
+def classify_category(category: str, title: str, summary: str, source: str) -> str:
+    """Iscola i feed di attualità generica (non economica) dal feed di economia e finanza."""
+    t = (title or "").lower()
+    s = (summary or "").lower()
+    src = (source or "").lower()
+    text = f"{t} {s}"
+
+    if "oops! pagina non trovata" in text:
+        return "attualita"
+
+    if category in ["tax", "macro"]:
+        has_econ = any(k in text for k in ECONOMY_FINANCE_KEYWORDS)
+        has_att = any(k in text for k in ATTUALITA_KEYWORDS)
+
+        if has_att and not has_econ:
+            return "attualita"
+        if not has_econ and ("sole 24" in src or "rainews" in src):
+            return "attualita"
+
+    return category
 
 REGION_LABELS = {
     "mondo": "Mondo",
@@ -164,6 +207,21 @@ def detect_region(source: str, title: str, summary: str, url: str) -> tuple[str,
 
     # Default: Mondo
     return "mondo", REGION_LABELS["mondo"]
+
+KNOWN_CITIES = [
+    "Milano", "Roma", "Parigi", "Londra", "New York", "Mosca", "Perugia",
+    "Firenze", "Torino", "Venezia", "Bologna", "Napoli", "Hong Kong", "Tokyo",
+    "Shanghai", "Pechino", "Ginevra", "Zurigo", "Francoforte", "Madrid", "Barcellona"
+]
+
+def detect_city(title: str, summary: str, source: str) -> str:
+    """Rileva se una città nota è menzionata nel titolo, nel summary o nella fonte."""
+    text = f"{title or ''} {summary or ''} {source or ''}"
+    for city in KNOWN_CITIES:
+        pattern = rf"\b{re.escape(city)}\b"
+        if re.search(pattern, text, re.IGNORECASE):
+            return city
+    return "Tutte"
 
 PAMBIANCO_DIRECT_SECTIONS = [
     ("openings", "Openings", "https://www.pambianconews.com/opening/"),
@@ -503,15 +561,19 @@ def scrape_pambianco_section(category: str, source_name: str, url: str, days_bac
 
         score = score_entry(category, title, summary)
         uid = hashlib.md5(link.encode("utf-8")).hexdigest()[:10]
-        region, region_label = detect_region(f"Pambianco News — {source_name}", title, summary, link)
+        full_source = f"Pambianco News — {source_name}"
+        region, region_label = detect_region(full_source, title, summary, link)
+        city = detect_city(title, summary, full_source)
+        final_cat = classify_category(category, title, summary, full_source)
 
         results.append({
             "id": uid,
-            "category": category,
-            "categoryLabel": CATEGORY_LABELS.get(category, category),
+            "category": final_cat,
+            "categoryLabel": CATEGORY_LABELS.get(final_cat, final_cat),
             "region": region,
             "regionLabel": region_label,
-            "source": f"Pambianco News — {source_name}",
+            "city": city,
+            "source": full_source,
             "title": title,
             "url": link,
             "date": date_str,
@@ -557,13 +619,16 @@ def fetch_direct_rss_feed(source_name: str, url: str, category: str, days_back: 
         score = score_entry(category, title, summary)
         uid = hashlib.md5(link.encode("utf-8")).hexdigest()[:10]
         region, region_label = detect_region(source_name, title, summary, link)
+        city = detect_city(title, summary, source_name)
+        final_cat = classify_category(category, title, summary, source_name)
 
         results.append({
             "id": uid,
-            "category": category,
-            "categoryLabel": CATEGORY_LABELS.get(category, category),
+            "category": final_cat,
+            "categoryLabel": CATEGORY_LABELS.get(final_cat, final_cat),
             "region": region,
             "regionLabel": region_label,
+            "city": city,
             "source": source_name,
             "title": title,
             "url": link,
@@ -603,13 +668,16 @@ def fetch_source(category: str, source_name: str, domain: str, days_back: int):
         score = score_entry(category, title, summary)
         uid = hashlib.md5(link.encode("utf-8")).hexdigest()[:10]
         region, region_label = detect_region(source_name, title, summary, link)
+        city = detect_city(title, summary, source_name)
+        final_cat = classify_category(category, title, summary, source_name)
 
         results.append({
             "id": uid,
-            "category": category,
-            "categoryLabel": CATEGORY_LABELS[category],
+            "category": final_cat,
+            "categoryLabel": CATEGORY_LABELS.get(final_cat, final_cat),
             "region": region,
             "regionLabel": region_label,
+            "city": city,
             "source": source_name,
             "title": title,
             "url": link,

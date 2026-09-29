@@ -121,10 +121,20 @@
       <button onclick="filterCategory('macro')" data-cat="macro" class="cat-btn px-4 py-2 text-xs font-semibold rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition"><i class="fa-solid fa-chart-line mr-1.5 text-emerald-500"></i>Macro &amp; Mercati</button>
       <button onclick="filterCategory('esg')" data-cat="esg" class="cat-btn px-4 py-2 text-xs font-semibold rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition"><i class="fa-solid fa-leaf mr-1.5 text-teal-500"></i>ESG &amp; Supply Chain</button>
       <button onclick="filterCategory('competitors')" data-cat="competitors" class="cat-btn px-4 py-2 text-xs font-semibold rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition"><i class="fa-solid fa-building-user mr-1.5 text-indigo-500"></i>Competitors</button>
+      <button onclick="filterCategory('attualita')" data-cat="attualita" class="cat-btn px-4 py-2 text-xs font-semibold rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition"><i class="fa-solid fa-earth-americas mr-1.5 text-cyan-500"></i>Attualità</button>
     </div>
-    <div class="relative w-full md:w-80">
-      <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-xs text-slate-400"></i>
-      <input type="text" id="searchInput" onkeyup="handleSearch()" placeholder="Cerca titolo, fonte o testo..." class="w-full pl-9 pr-4 py-2 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-navy-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-gold-500 shadow-sm">
+    <div class="flex items-center gap-2 w-full md:w-auto">
+      <div class="relative min-w-[140px] sm:min-w-[160px]">
+        <i class="fa-solid fa-location-dot absolute left-3 top-3 text-xs text-gold-500 pointer-events-none"></i>
+        <select id="citySelect" onchange="handleCityChange()" class="w-full pl-8 pr-7 py-2 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-navy-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-gold-500 shadow-sm appearance-none cursor-pointer">
+          <option value="all">Tutte le città</option>
+        </select>
+        <i class="fa-solid fa-chevron-down absolute right-3 top-3 text-[10px] text-slate-400 pointer-events-none"></i>
+      </div>
+      <div class="relative w-full md:w-72">
+        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-xs text-slate-400"></i>
+        <input type="text" id="searchInput" onkeyup="handleSearch()" placeholder="Cerca titolo, fonte o testo..." class="w-full pl-9 pr-4 py-2 text-xs font-medium rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-navy-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-gold-500 shadow-sm">
+      </div>
     </div>
   </div>
 
@@ -212,7 +222,28 @@ let articlesList = [
 
 let currentCategory = "all";
 let currentRegion = "mondo";
+let currentCity = "all";
 let searchQuery = "";
+
+const CITIES_LIST = [
+  "Milano", "Roma", "Parigi", "Londra", "New York", "Mosca", "Perugia",
+  "Firenze", "Torino", "Venezia", "Bologna", "Napoli", "Hong Kong", "Tokyo",
+  "Shanghai", "Pechino", "Ginevra", "Zurigo", "Francoforte", "Madrid", "Barcellona"
+];
+
+function detectCityItem(item){
+  if(item.city && item.city !== "Tutte") return item.city;
+  const t = (item.title||"").toLowerCase();
+  const s = (item.source||"").toLowerCase();
+  const m = (item.summary||"").toLowerCase();
+  const text = `${t} ${s} ${m}`;
+
+  for(const c of CITIES_LIST){
+    const pattern = new RegExp(`\\b${c.toLowerCase()}\\b`, "i");
+    if(pattern.test(text)) return c;
+  }
+  return null;
+}
 
 function toggleTheme(){
   document.documentElement.classList.toggle('dark');
@@ -252,11 +283,45 @@ function getCategoryBadge(cat){
     case 'macro': return '<span class="px-2.5 py-1 text-[10px] font-bold rounded-md bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700"><i class="fa-solid fa-chart-line mr-1"></i>Macro &amp; Mercati</span>';
     case 'esg': return '<span class="px-2.5 py-1 text-[10px] font-bold rounded-md bg-teal-100 text-teal-800 dark:bg-teal-900/60 dark:text-teal-300 border border-teal-200 dark:border-teal-700"><i class="fa-solid fa-leaf mr-1"></i>ESG &amp; Supply Chain</span>';
     case 'competitors': return '<span class="px-2.5 py-1 text-[10px] font-bold rounded-md bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700"><i class="fa-solid fa-building-user mr-1"></i>Competitor Quotati</span>';
+    case 'attualita': return '<span class="px-2.5 py-1 text-[10px] font-bold rounded-md bg-cyan-100 text-cyan-800 dark:bg-cyan-900/60 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-700"><i class="fa-solid fa-earth-americas mr-1"></i>Attualità</span>';
     default: return '<span class="px-2.5 py-1 text-[10px] font-bold rounded-md bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300"><i class="fa-solid fa-globe mr-1"></i>Generale</span>';
   }
 }
 
 function escapeHtml(s){ const d=document.createElement('div'); d.innerText = s||""; return d.innerHTML; }
+
+function populateCityDropdown(){
+  const citySelect = document.getElementById('citySelect');
+  if(!citySelect) return;
+
+  const cityCounts = {};
+  articlesList.forEach(item => {
+    const r = detectRegionItem(item);
+    if(currentRegion !== 'mondo' && r !== currentRegion) return;
+    const city = detectCityItem(item);
+    if(city){
+      cityCounts[city] = (cityCounts[city] || 0) + 1;
+    }
+  });
+
+  const sortedCities = Object.keys(cityCounts).sort((a,b)=> cityCounts[b] - cityCounts[a]);
+
+  let html = `<option value="all">Tutte le città (${articlesList.filter(a => currentRegion === 'mondo' || detectRegionItem(a) === currentRegion).length})</option>`;
+  sortedCities.forEach(c => {
+    const selected = currentCity === c ? 'selected' : '';
+    html += `<option value="${escapeHtml(c)}" ${selected}>${escapeHtml(c)} (${cityCounts[c]})</option>`;
+  });
+
+  citySelect.innerHTML = html;
+}
+
+function handleCityChange(){
+  const citySelect = document.getElementById('citySelect');
+  if(citySelect){
+    currentCity = citySelect.value;
+    renderArticles();
+  }
+}
 
 function updateCounts(){
   const regCounts = { mondo:0, italia:0, europa:0, russia:0, usa:0 };
@@ -269,6 +334,8 @@ function updateCounts(){
   document.getElementById('regCountEuropa').innerText = regCounts.europa;
   document.getElementById('regCountRussia').innerText = regCounts.russia;
   document.getElementById('regCountUsa').innerText = regCounts.usa;
+
+  populateCityDropdown();
 }
 
 function renderArticles(){
@@ -282,8 +349,10 @@ function renderArticles(){
     const itemReg = detectRegionItem(item);
     const okReg = currentRegion === 'mondo' || itemReg === currentRegion;
     const okCat = currentCategory==='all' || item.category===currentCategory;
+    const itemCity = detectCityItem(item);
+    const okCity = currentCity === 'all' || itemCity === currentCity;
     const okQ = (item.title+item.source+(item.summary||"")).toLowerCase().includes(q);
-    return okReg && okCat && okQ;
+    return okReg && okCat && okCity && okQ;
   }).sort((a,b)=> (b.pubDate||"").localeCompare(a.pubDate||""));
 
   document.getElementById('kpiCount').innerText = filtered.length;
@@ -327,6 +396,7 @@ function renderArticles(){
 
 function filterRegion(reg){
   currentRegion = reg;
+  currentCity = "all";
   document.querySelectorAll('.reg-btn').forEach(btn=>{
     btn.className = btn.dataset.reg===reg
       ? 'reg-btn px-3.5 py-1.5 text-xs font-bold rounded-xl bg-navy-950 text-white dark:bg-gold-500 dark:text-navy-950 shadow-sm transition whitespace-nowrap'

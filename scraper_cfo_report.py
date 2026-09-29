@@ -129,23 +129,53 @@ ATTUALITA_KEYWORDS = [
 ]
 
 
-def classify_category(category: str, title: str, summary: str, source: str) -> str:
-    """Iscola i feed di attualità generica (non economica) dal feed di economia e finanza."""
+def classify_category(category: str, title: str, summary: str, source: str, tags: list = None, url: str = "") -> str:
+    """Classifica la categoria basandosi su tag nativi RSS, percorso URL, testo e fonte."""
     t = (title or "").lower()
     s = (summary or "").lower()
     src = (source or "").lower()
+    u = (url or "").lower()
     text = f"{t} {s}"
 
     if "oops! pagina non trovata" in text:
         return "attualita"
 
-    if category in ["tax", "macro"]:
-        has_econ = any(k in text for k in ECONOMY_FINANCE_KEYWORDS)
-        has_att = any(k in text for k in ATTUALITA_KEYWORDS)
+    # Estrazione tag/categoria dal feed RSS
+    tag_terms = []
+    if tags:
+        for tag in tags:
+            if isinstance(tag, dict) and "term" in tag:
+                tag_terms.append(str(tag["term"]).lower())
+            elif isinstance(tag, str):
+                tag_terms.append(tag.lower())
+    tag_str = " ".join(tag_terms)
 
+    # Identificazione sezioni dal Sole 24 Ore / domini di notizie
+    is_sole24 = "sole 24" in src or "ilsole24ore" in u
+
+    finance_tax_sections = ["finanza", "norme e tributi", "norme & tributi", "fisco", "tributi", "economia", "mercati", "borse"]
+    attualita_sections = ["italia", "mondo", "cronaca", "politica", "esteri", "cultura", "spettacoli", "sport", "notizie", "attualita"]
+
+    is_fin_section = any(sec in tag_str for s in finance_tax_sections for sec in [s]) or any(f"/art/{s}" in u or f"/{s}/" in u or f"ntplus{s}" in u for s in ["finanza", "norme-e-tributi", "economia", "fisco"])
+    is_att_section = any(sec in tag_str for s in attualita_sections for sec in [s]) or any(f"/art/{s}" in u for s in ["italia", "mondo", "cultura", "spettacoli", "sport", "cronaca"])
+
+    has_econ = any(k in text for k in ECONOMY_FINANCE_KEYWORDS)
+    has_att = any(k in text for k in ATTUALITA_KEYWORDS)
+
+    if is_sole24:
+        if is_fin_section:
+            return "tax"
+        if is_att_section:
+            return "tax" if has_econ else "attualita"
+        # Fallback per Il Sole 24 Ore se la sezione non è esplicitata
+        return "tax" if has_econ else "attualita"
+
+    if category in ["tax", "macro"]:
+        if is_att_section and not has_econ:
+            return "attualita"
         if has_att and not has_econ:
             return "attualita"
-        if not has_econ and ("sole 24" in src or "rainews" in src):
+        if not has_econ and ("rainews" in src or "kommersant" in src):
             return "attualita"
 
     return category
@@ -241,7 +271,11 @@ DIRECT_RSS_SOURCES = [
     ("Yahoo Finance", "https://finance.yahoo.com/news/rssindex", "macro"),
     ("The Economic Times", "https://economictimes.indiatimes.com/rssfeedstopstories.cms", "macro"),
     # Finanza Europea & Italiana
-    ("Il Sole 24 Ore", "https://www.ilsole24ore.com/rss/finanza.xml", "tax"),
+    ("Il Sole 24 Ore Finanza", "https://www.ilsole24ore.com/rss/finanza.xml", "tax"),
+    ("Il Sole 24 Ore Norme & Tributi", "https://www.ilsole24ore.com/rss/norme-e-tributi.xml", "tax"),
+    ("Il Sole 24 Ore Economia", "https://www.ilsole24ore.com/rss/economia.xml", "tax"),
+    ("Il Sole 24 Ore Italia", "https://www.ilsole24ore.com/rss/italia.xml", "attualita"),
+    ("Il Sole 24 Ore Mondo", "https://www.ilsole24ore.com/rss/mondo.xml", "attualita"),
     ("Milano Finanza", "https://www.milanofinanza.it/rss/rss_mercati.xml", "tax"),
     ("SoldiOnline", "https://www.soldionline.it/rss/notizie", "tax"),
     ("Cinco Días (Spagna)", "https://cincodias.elpais.com/rss/cincodias/portada.xml", "macro"),
@@ -564,7 +598,7 @@ def scrape_pambianco_section(category: str, source_name: str, url: str, days_bac
         full_source = f"Pambianco News — {source_name}"
         region, region_label = detect_region(full_source, title, summary, link)
         city = detect_city(title, summary, full_source)
-        final_cat = classify_category(category, title, summary, full_source)
+        final_cat = classify_category(category, title, summary, full_source, url=link)
 
         results.append({
             "id": uid,
@@ -620,7 +654,8 @@ def fetch_direct_rss_feed(source_name: str, url: str, category: str, days_back: 
         uid = hashlib.md5(link.encode("utf-8")).hexdigest()[:10]
         region, region_label = detect_region(source_name, title, summary, link)
         city = detect_city(title, summary, source_name)
-        final_cat = classify_category(category, title, summary, source_name)
+        tags = getattr(entry, "tags", [])
+        final_cat = classify_category(category, title, summary, source_name, tags=tags, url=link)
 
         results.append({
             "id": uid,
@@ -669,7 +704,8 @@ def fetch_source(category: str, source_name: str, domain: str, days_back: int):
         uid = hashlib.md5(link.encode("utf-8")).hexdigest()[:10]
         region, region_label = detect_region(source_name, title, summary, link)
         city = detect_city(title, summary, source_name)
-        final_cat = classify_category(category, title, summary, source_name)
+        tags = getattr(entry, "tags", [])
+        final_cat = classify_category(category, title, summary, source_name, tags=tags, url=link)
 
         results.append({
             "id": uid,

@@ -208,6 +208,21 @@ def detect_region(source: str, title: str, summary: str, url: str) -> tuple[str,
     # Default: Mondo
     return "mondo", REGION_LABELS["mondo"]
 
+KNOWN_CITIES = [
+    "Milano", "Roma", "Parigi", "Londra", "New York", "Mosca", "Perugia",
+    "Firenze", "Torino", "Venezia", "Bologna", "Napoli", "Hong Kong", "Tokyo",
+    "Shanghai", "Pechino", "Ginevra", "Zurigo", "Francoforte", "Madrid", "Barcellona"
+]
+
+def detect_city(title: str, summary: str, source: str) -> str:
+    """Rileva se una città nota è menzionata nel titolo, nel summary o nella fonte."""
+    text = f"{title or ''} {summary or ''} {source or ''}"
+    for city in KNOWN_CITIES:
+        pattern = rf"\b{re.escape(city)}\b"
+        if re.search(pattern, text, re.IGNORECASE):
+            return city
+    return "Tutte"
+
 PAMBIANCO_DIRECT_SECTIONS = [
     ("openings", "Openings", "https://www.pambianconews.com/opening/"),
     ("fashion_news", "Fashion News", "https://www.pambianconews.com/news-in-breve/"),
@@ -546,8 +561,10 @@ def scrape_pambianco_section(category: str, source_name: str, url: str, days_bac
 
         score = score_entry(category, title, summary)
         uid = hashlib.md5(link.encode("utf-8")).hexdigest()[:10]
-        region, region_label = detect_region(f"Pambianco News — {source_name}", title, summary, link)
-        final_cat = classify_category(category, title, summary, f"Pambianco News — {source_name}")
+        full_source = f"Pambianco News — {source_name}"
+        region, region_label = detect_region(full_source, title, summary, link)
+        city = detect_city(title, summary, full_source)
+        final_cat = classify_category(category, title, summary, full_source)
 
         results.append({
             "id": uid,
@@ -555,7 +572,8 @@ def scrape_pambianco_section(category: str, source_name: str, url: str, days_bac
             "categoryLabel": CATEGORY_LABELS.get(final_cat, final_cat),
             "region": region,
             "regionLabel": region_label,
-            "source": f"Pambianco News — {source_name}",
+            "city": city,
+            "source": full_source,
             "title": title,
             "url": link,
             "date": date_str,
@@ -601,6 +619,7 @@ def fetch_direct_rss_feed(source_name: str, url: str, category: str, days_back: 
         score = score_entry(category, title, summary)
         uid = hashlib.md5(link.encode("utf-8")).hexdigest()[:10]
         region, region_label = detect_region(source_name, title, summary, link)
+        city = detect_city(title, summary, source_name)
         final_cat = classify_category(category, title, summary, source_name)
 
         results.append({
@@ -609,6 +628,7 @@ def fetch_direct_rss_feed(source_name: str, url: str, category: str, days_back: 
             "categoryLabel": CATEGORY_LABELS.get(final_cat, final_cat),
             "region": region,
             "regionLabel": region_label,
+            "city": city,
             "source": source_name,
             "title": title,
             "url": link,
@@ -648,6 +668,7 @@ def fetch_source(category: str, source_name: str, domain: str, days_back: int):
         score = score_entry(category, title, summary)
         uid = hashlib.md5(link.encode("utf-8")).hexdigest()[:10]
         region, region_label = detect_region(source_name, title, summary, link)
+        city = detect_city(title, summary, source_name)
         final_cat = classify_category(category, title, summary, source_name)
 
         results.append({
@@ -656,6 +677,7 @@ def fetch_source(category: str, source_name: str, domain: str, days_back: int):
             "categoryLabel": CATEGORY_LABELS.get(final_cat, final_cat),
             "region": region,
             "regionLabel": region_label,
+            "city": city,
             "source": source_name,
             "title": title,
             "url": link,
